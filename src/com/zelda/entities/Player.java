@@ -26,11 +26,12 @@ public class Player extends Entity{
 	
 	private boolean hasGun = false;
 	
-	public boolean shoot = false;
+	public boolean shoot = false, mouseShoot = false;
 	
 	public int ammo = 0;
 	
 	public double life = 100, maxlife = 100;
+	public int mx, my;
 	
 	public boolean isDamage = false;
 	private int damageFrames = 0;
@@ -113,6 +114,31 @@ public class Player extends Entity{
 			BulletShoot bullet = new BulletShoot(this.getX()+px,this.getY()+py,3,3,null,dx,0);
 			Game.bullets.add(bullet);
 			}
+		}
+		
+		if(mouseShoot) {
+			mouseShoot = false;
+			if( hasGun && ammo > 0) {
+				ammo--;
+			double angle = 0;
+			int px = 0;
+			int py = 8;
+
+			if(right) {
+
+				px = 18;
+				angle = Math.atan2(my - (this.getY()+py - Camera.y),mx - (this.getX()+px - Camera.x));
+			}else {
+				px = -8;
+				angle = Math.atan2(my - (this.getY()+py - Camera.y),mx - (this.getX()+px - Camera.x));
+				}
+			double dx = Math.cos(angle);
+			double dy = Math.sin(angle);
+			
+			BulletShoot bullet = new BulletShoot(this.getX()+px,this.getY()+py,3,3,null,dx,dy);
+			Game.bullets.add(bullet);
+			}
+			
 		}
 		
 		if(life <= 0){
