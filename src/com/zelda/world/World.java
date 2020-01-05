@@ -3,6 +3,7 @@ package com.zelda.world;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
@@ -10,7 +11,9 @@ import com.zelda.entities.Bullet;
 import com.zelda.entities.Enemy;
 import com.zelda.entities.Entity;
 import com.zelda.entities.LifePack;
+import com.zelda.entities.Player;
 import com.zelda.entities.Weapon;
+import com.zelda.graficos.Spritesheet;
 import com.zelda.main.Game;
 
 public class World {
@@ -94,6 +97,19 @@ public class World {
 				tiles[x2 + (y2*World.WIDTH)] instanceof WallTile ||
 				tiles[x3 + (y3*World.WIDTH)] instanceof WallTile ||
 				tiles[x4 + (y4*World.WIDTH)] instanceof WallTile);
+	}
+	
+	public static void restartGame(String level) {
+		Game.entities.clear();
+		Game.enemies.clear();
+		Game.entities = new ArrayList<Entity>();
+		Game.enemies = new ArrayList<Enemy>();
+		Game.spritesheet = new Spritesheet("/spritesheet.png");
+		Game.player =  new Player(0, 0, 16, 16, Game.spritesheet.getSprite(32, 0, 16, 16));	 
+		Game.entities.add(Game.player);
+		Game.world = new World("/"+level);
+		// Game Over!
+		return;
 	}
 	
 	public void render(Graphics g) {
