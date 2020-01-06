@@ -1,5 +1,6 @@
 package com.zelda.entities;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -36,6 +37,16 @@ public class Player extends Entity{
 	public boolean isDamage = false;
 	private int damageFrames = 0;
 	
+	public boolean jumpUp = false, jumpDown = false;
+	
+	public boolean jump = false;
+	public int z = 0;
+	public int jumpFrames = 10, jumpCur = 0;
+	public boolean isJumping = false;
+	
+	public int jumpSpeed = 2;
+	
+	
 	public Player(int x, int y, int width, int height, BufferedImage sprite) {
 		super(x, y, width, height, sprite);
 		rightPLayer = new BufferedImage[4];
@@ -53,6 +64,33 @@ public class Player extends Entity{
 	}
 
 	public void tick() {
+		if(jump) {
+			if(isJumping == false) {
+			jump = false;
+			isJumping = true;
+			jumpUp = true;
+			}
+		}
+		if(isJumping == true) {
+			
+				if(jumpUp) {				
+					jumpCur += jumpSpeed;
+				}else if(jumpDown) {
+					jumpCur -= jumpSpeed;
+					if(jumpCur<=0) {
+						isJumping = false;
+						jumpDown = false;
+						jumpUp = false;
+						
+					}
+				}
+				z = jumpCur;
+				if(jumpCur >= jumpFrames) {
+					jumpUp = false;
+					jumpDown = true;
+				}
+			
+		}
 		moved = false;
 		if(right && World.isFree((int)(x+speed),this.getY())) {
 			moved = true;
@@ -197,25 +235,29 @@ public class Player extends Entity{
 	public void render(Graphics g) {
 		if(!isDamage) {
 		if(up) {
-			g.drawImage(upPlayer, this.getX()-Camera.x, this.getY()-Camera.y, null);	
+			g.drawImage(upPlayer, this.getX()-Camera.x, this.getY()-Camera.y -z, null);	
 		}else if(right) {
-		g.drawImage(rightPLayer[index], this.getX() -Camera.x, this.getY()-Camera.y, null);
+		g.drawImage(rightPLayer[index], this.getX() -Camera.x, this.getY()-Camera.y -z, null);
 		if(hasGun) {	
-			g.drawImage(Entity.GUN_RIGHT, this.getX()+8 -Camera.x, this.getY()+1-Camera.y, null);
+			g.drawImage(Entity.GUN_RIGHT, this.getX()+8 -Camera.x, this.getY()+1-Camera.y -z, null);
 		}
 		}else if(left) {
-		g.drawImage(leftPLayer[index], this.getX()-Camera.x, this.getY()-Camera.y, null);	
+		g.drawImage(leftPLayer[index], this.getX()-Camera.x, this.getY()-Camera.y -z, null);	
 		if(hasGun) {
-			g.drawImage(Entity.GUN_LEFT, this.getX()-8- Camera.x, this.getY()+1-Camera.y, null);
+			g.drawImage(Entity.GUN_LEFT, this.getX()-8- Camera.x, this.getY()+1-Camera.y -z, null);
 		}
 		}else {
-			g.drawImage(stopPlayer	, this.getX()-Camera.x, this.getY()-Camera.y, null);				
+			g.drawImage(stopPlayer	, this.getX()-Camera.x, this.getY()-Camera.y -z, null);				
 			if(hasGun) {	
-				g.drawImage(Entity.GUN_RIGHT, this.getX()- Camera.x, this.getY()+1-Camera.y, null);
+				g.drawImage(Entity.GUN_RIGHT, this.getX()- Camera.x, this.getY()+1-Camera.y -z, null);
 			}
 		}
 		}else {
-			g.drawImage(playerDemage, this.getX()-Camera.x, this.getY()-Camera.y, null);
+			g.drawImage(playerDemage, this.getX()-Camera.x, this.getY()-Camera.y -z, null);
+		}
+		if(isJumping) {
+			g.setColor(Color.black);
+			g.fillOval(this.getX()-Camera.x + 6, this.getY() - Camera.y + 15, 3, 5);
 		}
 		
 	}

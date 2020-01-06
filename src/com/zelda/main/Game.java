@@ -66,7 +66,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	public Menu menu;
 	
 	public Game() {
-		Sound.musicBackground.play();
+		Sound.musicBackground.loop();
 		rand = new Random();
 		addKeyListener(this);
 		addMouseListener(this);
@@ -235,6 +235,10 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		
+		if(e.getKeyCode() == KeyEvent.VK_Z) {
+			player.jump = true;
+		}
 		if(e.getKeyCode() == KeyEvent.VK_RIGHT || 
 				e.getKeyCode() == KeyEvent.VK_D) {
 			// movimento para direita
