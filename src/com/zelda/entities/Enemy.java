@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import com.zelda.main.Game;
+import com.zelda.main.Sound;
 import com.zelda.world.Camera;
 import com.zelda.world.World;
 
@@ -52,6 +53,7 @@ public class Enemy extends Entity {
 		} else {
 			// Estamos colidindo
 			if (Game.rand.nextInt(100) < 10) {
+				Sound.hurtEffect.play();
 				Game.player.life -= Game.rand.nextInt(3);
 				Game.player.isDamage = true;
 
