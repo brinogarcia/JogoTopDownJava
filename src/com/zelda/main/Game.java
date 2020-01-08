@@ -63,6 +63,8 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	
 	private boolean restartGame = false;
 	
+	public boolean saveGame =  false;
+	
 	public Menu menu;
 	
 	public Game() {
@@ -119,6 +121,12 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	
 	public void tick() {
 		if(gameState == "NORMAL") {
+			if(this.saveGame) {
+				this.saveGame = false;
+				String[] opt1 = {"level"};
+				int[] opt2 = {this.CUR_LEVEL};
+				Menu.saveGame(opt1, opt2, 10);				
+			}
 			this.restartGame = false;
 		for(int i=0 ; i< entities.size(); i++) {
 			Entity e = entities.get(i);
@@ -282,6 +290,12 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			gameState = "MENU";
 			menu.options[0]="Continuar";
+		}
+		
+		if(e.getKeyCode() == KeyEvent.VK_F1){
+			if(gameState == "NORMAL") {
+			this.saveGame = true;
+			}
 		}
 		
 		

@@ -41,7 +41,7 @@ public class Player extends Entity{
 	
 	public boolean jump = false;
 	public int z = 0;
-	public int jumpFrames = 10, jumpCur = 0;
+	public int jumpFrames = 20, jumpCur = 0;
 	public boolean isJumping = false;
 	
 	public int jumpSpeed = 2;
@@ -92,21 +92,21 @@ public class Player extends Entity{
 			
 		}
 		moved = false;
-		if(right && World.isFree((int)(x+speed),this.getY())) {
+		if(right && World.isFree((int)(x+speed),this.getY(),z)) {
 			moved = true;
 			dir = right_dir;
 			x+=speed;
 		}
-		else if(left && World.isFree((int)(x-speed),this.getY())) {
+		else if(left && World.isFree((int)(x-speed),this.getY(),z)) {
 			moved = true;
 			dir = left_dir;
 			x-=speed;
 		}
-		if(up && World.isFree(this.getX(),(int)(y-speed))){
+		if(up && World.isFree(this.getX(),(int)(y-speed),z)){
 			moved = true;
 			y-=speed;
 		}
-		else if(down && World.isFree(this.getX(),(int)(y+speed))){
+		else if(down && World.isFree(this.getX(),(int)(y+speed),z)){
 			moved = true;
 			y+=speed;
 		}
