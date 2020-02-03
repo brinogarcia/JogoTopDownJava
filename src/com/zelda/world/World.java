@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import com.zelda.entities.Boss;
 import com.zelda.entities.Bullet;
 import com.zelda.entities.Enemy;
 import com.zelda.entities.Entity;
@@ -71,6 +72,14 @@ public class World {
 						// Bullet
 						Game.entities.add(new Bullet(xx*16,yy*16,16,16,Entity.BULLET_EN));
 					}
+					else if(pixelAtual == 0xFF7C0E79) {
+						//Boss
+						Boss en = new Boss(xx*16,yy*16,16,16,Entity.BOSS_EN);
+						Game.entities.add(en);
+						Game.boss.add(en);
+						
+						
+					}
 					
 				}
 				
@@ -107,8 +116,10 @@ public class World {
 	
 	public static void restartGame(String level) {
 		Game.entities.clear();
+		Game.boss.clear();
 		Game.enemies.clear();
 		Game.entities = new ArrayList<Entity>();
+		Game.boss = new ArrayList<Boss>();
 		Game.enemies = new ArrayList<Enemy>();
 		Game.spritesheet = new Spritesheet("/spritesheet.png");
 		Game.player =  new Player(0, 0, 16, 16, Game.spritesheet.getSprite(32, 0, 16, 16));	 

@@ -4,20 +4,27 @@ import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
+import com.zelda.entities.Boss;
 import com.zelda.entities.BulletShoot;
 import com.zelda.entities.Enemy;
 import com.zelda.entities.Entity;
@@ -27,7 +34,7 @@ import com.zelda.graficos.UI;
 import com.zelda.world.Camera;
 import com.zelda.world.World;
 
-public class Game extends Canvas implements Runnable, KeyListener, MouseListener {
+public class Game extends Canvas implements Runnable, KeyListener, MouseListener, MouseMotionListener {
 	
 
 	private static final long serialVersionUID = 1L;
@@ -40,11 +47,12 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	
 	public static Player player;
 
-	private int CUR_LEVEL = 1, MAX_LEVEL = 3;
+	private int CUR_LEVEL = 1, MAX_LEVEL = 4;
 	private BufferedImage image; 
 
 	public static List<Entity> entities;
 	public static List<Enemy> enemies;
+	public static List<Boss> boss;
 	public static List<BulletShoot> bullets;
 	public static Spritesheet spritesheet;
 	
@@ -54,6 +62,10 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	public static Random rand;
 	
 	public UI ui;
+	
+	public InputStream stream = ClassLoader.getSystemClassLoader().getResourceAsStream("pixelart.ttf");
+	public static Font newFont;
+	
 	
 	public static String gameState = "MENU";
 	
@@ -67,25 +79,51 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	
 	public Menu menu;
 	
+	public int[] pixels;
+	public BufferedImage lightMap;
+	public int[] lightMapPixels;
+	
+	public int mx, my, xx, yy;
+	
 	public Game() {
 		Sound.musicBackground.loop();
 		rand = new Random();
 		addKeyListener(this);
 		addMouseListener(this);
+		addMouseMotionListener(this);
 		setPreferredSize(new Dimension(WIDTH*SCALE,HEIGHT*SCALE));
 		initFrame();
 		
 		// inicializando objetos
 		ui = new UI();
 		image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		try {
+			lightMap = ImageIO.read(getClass().getResource("/lightmap.png"));
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		lightMapPixels = new int[WIDTH*HEIGHT];
+		lightMap.getRGB(0, 0,lightMap.getWidth(),lightMap.getHeight(),lightMapPixels,0,lightMap.getWidth());
+		pixels =((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 		entities = new ArrayList<Entity>();
 		enemies = new ArrayList<Enemy>();
+		boss = new ArrayList<Boss>();
 		bullets =  new ArrayList<BulletShoot>();
 		spritesheet = new Spritesheet("/spritesheet.png");
 		player =  new Player(0, 0, 16, 16, spritesheet.getSprite(32, 0, 16, 16));	 
 		entities.add(player);
 		world = new World("/level1.png");	
 		menu = new Menu();
+		try {
+			newFont = Font.createFont(Font.TRUETYPE_FONT, stream).deriveFont(60f);
+		} catch (FontFormatException e) {
+	
+			e.printStackTrace();
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
 	}
 	
 	public void initFrame() {
@@ -121,10 +159,11 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	
 	public void tick() {
 		if(gameState == "NORMAL") {
+			
 			if(this.saveGame) {
 				this.saveGame = false;
-				String[] opt1 = {"level"};
-				int[] opt2 = {this.CUR_LEVEL};
+				String[] opt1 = {"level", "vida"};
+				int[] opt2 = {this.CUR_LEVEL,(int) player.life};
 				Menu.saveGame(opt1, opt2, 10);				
 			}
 			this.restartGame = false;
@@ -135,7 +174,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		for(int i = 0; i < bullets.size(); i++) {
 			bullets.get(i).tick();
 		}
-		if(enemies.size()==0) {
+		if(enemies.size()==0 &&  (boss.size()==0||boss.isEmpty())  ) {
 			CUR_LEVEL++;
 			if(CUR_LEVEL > MAX_LEVEL) {
 				CUR_LEVEL = 1;
@@ -161,10 +200,34 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 				World.restartGame(newWorld);
 			}
 		}else if(gameState == "MENU") {
+			player.updateCamera();
 			menu.tick();
 		}
 		
 	}
+	
+	/*public void drawRectangleExample(int xOff, int yOff) {
+		for(int xx =0; xx<32; xx++) {
+			for(int yy =0; yy<32; yy++) {
+				xOff = xx + xOff;
+				yOff = yy + yOff;
+				if(xOff < 0 || yOff < 0 || xOff >= WIDTH || yOff >= HEIGHT)
+					continue;
+				
+				pixels[xOff +(yOff * WIDTH)] = 0xff0000;
+			}
+		}
+	}*/
+	public void applyLight() {
+		for(int xx=0; xx< Game.WIDTH;xx++) {
+			for(int yy=0; yy<Game.HEIGHT; yy++) {
+				if(lightMapPixels[xx+(yy*Game.WIDTH)] == 0xffffffff) {
+				pixels[xx+(yy*Game.WIDTH)] = 0;
+				}
+			}
+		}
+	}
+	
 	public void render() {
 		BufferStrategy bs = this.getBufferStrategy();
 		if(bs == null) {
@@ -187,10 +250,11 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			bullets.get(i).render(g);
 		}
 		
+		applyLight();
 		ui.render(g);
 		g.dispose();
-		/**/
 		g = bs.getDrawGraphics();
+		//drawRectangleExample(xx, yy);
 		g.drawImage(image, 0, 0, WIDTH* SCALE, HEIGHT*SCALE, null);
 		g.setFont(new Font("arial", Font.BOLD,17));
 		g.setColor(Color.white);
@@ -209,6 +273,12 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		}else if(gameState == "MENU") {
 			menu.render(g);
 		}
+		/*Graphics2D g2 = (Graphics2D) g;	
+		double angleMouse = Math.atan2(my-200+25, mx-200+75);
+		g2.rotate(Math.toDegrees(angleMouse),200+25,200+35);
+		g.setColor(Color.RED);
+		g.fillRect(200, 200, 50, 70);
+		*/
 		bs.show();
 	}
 	
@@ -363,6 +433,19 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+	this.mx = e.getX();
+	this.my = e.getY();
 		
 	}
 

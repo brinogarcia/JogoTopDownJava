@@ -53,7 +53,9 @@ public class Menu {
 			enter = false;
 			if(options[currentOption]== options[0]) {
 				Game.gameState = "NORMAL";
-			
+				pause = false;
+				file = new File("save.txt");
+				file.delete();
 			}else if(options[currentOption]== options[1]) {
 				file = new File("save.txt");
 				if(file.exists()) {
@@ -76,6 +78,9 @@ public class Menu {
 				World.restartGame("level"+spl2[1]+".png");
 				Game.gameState = "NORMAL";
 				pause = false;
+				break;
+			case "vida":
+				Game.player.life = Integer.parseInt(spl2[1]);
 				break;
 			}
 		}
@@ -120,11 +125,11 @@ public class Menu {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		for(int i=0; i < val1.length; i++) {
+		for(int i=0; i < (val1.length) ; i++) {
 			String current = val1[i];
 			current+=":";
 			char[] value = Integer.toString(val2[i]).toCharArray();
-			for(int j = 0; i< value.length; i++) {
+			for(int j = 0; j< value.length; j++) {
 				value[j] +=encode;
 				current += value[j];
 				
@@ -151,9 +156,9 @@ public class Menu {
 		g2.setColor(new Color(0,0,0,100));
 		g.fillRect(0,0, Game.WIDTH * Game.SCALE, Game.HEIGHT * Game.SCALE);
 		
-		g.setFont(new Font("arial", Font.BOLD,30));
+		g.setFont(Game.newFont);
 		g.setColor(Color.white);
-		g.drawString("SPACE WAR!",Game.WIDTH * Game.SCALE /2 - 100 , Game.HEIGHT * Game.SCALE / 2 - 180);
+		g.drawString("SPACE WAR!",Game.WIDTH * Game.SCALE /2 - 220 , Game.HEIGHT * Game.SCALE / 2 - 80);
 		
 		// opções de menu;
 		int j = 10;
