@@ -16,11 +16,14 @@ public class Entity {
 
 	public static BufferedImage LIFEPACK_EN = Game.spritesheet.getSprite(0, 16, 16, 16);
 	public static BufferedImage WEAPON_EN = Game.spritesheet.getSprite(16, 16, 16, 16);
+	public static BufferedImage SHOOTGUN_EN = Game.spritesheet.getSprite(32, 48, 16, 16);
 	public static BufferedImage BULLET_EN = Game.spritesheet.getSprite(128, 0, 16, 16);
 	public static BufferedImage ENEMY_EN = Game.spritesheet.getSprite(0, 32, 16, 16);
 	public static BufferedImage ENEMY_FEEDBACK = Game.spritesheet.getSprite(80, 32, 16, 16);
 	public static BufferedImage GUN_LEFT = Game.spritesheet.getSprite(64, 32, 16, 16);
 	public static BufferedImage GUN_RIGHT = Game.spritesheet.getSprite(48, 32, 16, 16);
+	public static BufferedImage SHOOTGUN_LEFT = Game.spritesheet.getSprite(48, 48, 16, 16);
+	public static BufferedImage SHOOTGUN_RIGHT = Game.spritesheet.getSprite(32, 48, 16, 16);
 	public static BufferedImage BOSS_EN = Game.spritesheet.getSprite(64, 48, 16, 16);
 	
 	protected double x;
@@ -28,6 +31,7 @@ public class Entity {
 	protected int z;
 	protected int width;
 	protected int height;
+	public int depth;
 
 	protected List<Node> path;
 
@@ -49,7 +53,20 @@ public class Entity {
 		this.mwidth = width;
 		this.mheight = height;
 	}
-
+	
+	public static Comparator<Entity> nodeSorter = new Comparator<Entity>() {
+		
+		@Override
+		public int compare(Entity n0,Entity n1) {
+			if(n1.depth < n0.depth)
+				return +1;
+			if(n1.depth > n0.depth)
+				return -1;
+			return 0;
+		}
+		
+	};
+	
 	public void setMask(int maskx, int masky, int mwidth, int mheight) {
 		this.maskx = maskx;
 		this.masky = masky;

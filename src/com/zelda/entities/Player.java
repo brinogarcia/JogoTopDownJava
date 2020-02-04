@@ -26,6 +26,8 @@ public class Player extends Entity{
 	private BufferedImage upPlayer;
 	
 	private boolean hasGun = false;
+	private boolean hasShootGun = false;
+	
 	
 	public boolean shoot = false, mouseShoot = false;
 	
@@ -46,6 +48,8 @@ public class Player extends Entity{
 	
 	public int jumpSpeed = 2;
 	
+
+	
 	
 	public Player(int x, int y, int width, int height, BufferedImage sprite) {
 		super(x, y, width, height, sprite);
@@ -64,6 +68,7 @@ public class Player extends Entity{
 	}
 
 	public void tick() {
+		depth = 1;
 		if(jump) {
 			if(isJumping == false) {
 			jump = false;
@@ -123,6 +128,7 @@ public class Player extends Entity{
 		checkCollisionLifePack();
 		checkCollisionLifeAmmo();
 		checkCollisionLifeGun();
+		checkCollisionLifeShootGun();
 		
 		if(isDamage) {
 			this.damageFrames++;
@@ -135,7 +141,7 @@ public class Player extends Entity{
 		if(shoot) {
 		
 			shoot = false;
-			if( hasGun && ammo > 0) {
+			if( (hasGun && ammo > 0) ||(hasShootGun && ammo > 0) ) {
 				ammo--;
 			int dx = 0;
 			int px = 0;
@@ -156,7 +162,7 @@ public class Player extends Entity{
 		
 		if(mouseShoot) {
 			mouseShoot = false;
-			if( hasGun && ammo > 0) {
+			if( (hasGun && ammo > 0) || (hasShootGun && ammo > 0)) {
 				ammo--;
 			double angle = 0;
 			int px = 0;
@@ -219,6 +225,19 @@ public class Player extends Entity{
 			}
 		}
 	}
+	public void checkCollisionLifeShootGun(){
+		for(int i = 0; i< Game.entities.size(); i++) {
+			Entity atual = Game.entities.get(i);
+			if(atual instanceof ShootGun) {
+				if(Entity.isColidding(this, atual)) {
+					hasShootGun = true;
+					System.out.println("Munição atual:" + ammo);
+					Game.entities.remove(atual);
+				}
+			}
+		}
+	}
+	
 	public void checkCollisionLifeAmmo(){
 		for(int i = 0; i< Game.entities.size(); i++) {
 			Entity atual = Game.entities.get(i);
@@ -240,12 +259,18 @@ public class Player extends Entity{
 		g.drawImage(rightPLayer[index], this.getX() -Camera.x, this.getY()-Camera.y -z, null);
 		if(hasGun) {	
 			g.drawImage(Entity.GUN_RIGHT, this.getX()+8 -Camera.x, this.getY()+1-Camera.y -z, null);
+		}else if(hasShootGun) {
+			g.drawImage(Entity.SHOOTGUN_RIGHT, this.getX()+8 -Camera.x, this.getY()+1-Camera.y -z, null);
 		}
+		
 		}else if(left) {
 		g.drawImage(leftPLayer[index], this.getX()-Camera.x, this.getY()-Camera.y -z, null);	
 		if(hasGun) {
 			g.drawImage(Entity.GUN_LEFT, this.getX()-8- Camera.x, this.getY()+1-Camera.y -z, null);
+		}else if(hasShootGun) {
+			g.drawImage(Entity.SHOOTGUN_LEFT, this.getX()-8-Camera.x, this.getY()+1-Camera.y -z, null);
 		}
+		
 		}else {
 			g.drawImage(stopPlayer	, this.getX()-Camera.x, this.getY()-Camera.y -z, null);				
 			if(hasGun) {	

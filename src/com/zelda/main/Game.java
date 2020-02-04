@@ -18,6 +18,7 @@ import java.awt.image.DataBufferInt;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -81,7 +82,9 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	
 	public int[] pixels;
 	public BufferedImage lightMap;
+	public static BufferedImage minimap;
 	public int[] lightMapPixels;
+	public static int[] minimapaPixels;
 	
 	public int mx, my, xx, yy;
 	
@@ -114,6 +117,8 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		player =  new Player(0, 0, 16, 16, spritesheet.getSprite(32, 0, 16, 16));	 
 		entities.add(player);
 		world = new World("/level1.png");	
+		minimap = new BufferedImage(World.WIDTH, World.HEIGHT ,BufferedImage.TYPE_INT_RGB);
+		minimapaPixels = ((DataBufferInt)minimap.getRaster().getDataBuffer()).getData();
 		menu = new Menu();
 		try {
 			newFont = Font.createFont(Font.TRUETYPE_FONT, stream).deriveFont(60f);
@@ -241,6 +246,8 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		// Renderiza��o do jogo //
 		//Graphics2D g2 = (Graphics2D) g;
 		world.render(g);
+		Collections.sort(entities, Entity.nodeSorter);
+		
 		for(int i=0 ; i< entities.size(); i++) {
 			Entity e = entities.get(i);
 			e.render(g);
@@ -250,7 +257,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			bullets.get(i).render(g);
 		}
 		
-		applyLight();
+		//applyLight();
 		ui.render(g);
 		g.dispose();
 		g = bs.getDrawGraphics();
@@ -273,12 +280,9 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		}else if(gameState == "MENU") {
 			menu.render(g);
 		}
-		/*Graphics2D g2 = (Graphics2D) g;	
-		double angleMouse = Math.atan2(my-200+25, mx-200+75);
-		g2.rotate(Math.toDegrees(angleMouse),200+25,200+35);
-		g.setColor(Color.RED);
-		g.fillRect(200, 200, 50, 70);
-		*/
+		World.renderMiniMap();
+		g.drawImage(minimap,615,80,World.WIDTH*5,World.HEIGHT*5,null);
+
 		bs.show();
 	}
 	
