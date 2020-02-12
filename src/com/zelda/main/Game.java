@@ -33,6 +33,7 @@ import com.zelda.entities.Boss;
 import com.zelda.entities.BulletShoot;
 import com.zelda.entities.Enemy;
 import com.zelda.entities.Entity;
+import com.zelda.entities.Npc;
 import com.zelda.entities.Player;
 import com.zelda.graficos.Spritesheet;
 import com.zelda.graficos.UI;
@@ -83,6 +84,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	public boolean saveGame =  false;
 	
 	public Menu menu;
+	public DimensionSelect dimensionSelect;
 	
 	public int[] pixels;
 	public BufferedImage lightMap;
@@ -91,14 +93,28 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	public static int[] minimapaPixels;
 	
 	public int mx, my, xx, yy;
+	public static Dimension dimensionFullScren = new Dimension(Toolkit.getDefaultToolkit().getScreenSize());
+	public static Dimension dimensionScale = new Dimension(WIDTH*SCALE,HEIGHT*SCALE);
+	public static boolean checkFullScreen = false;
+	public static int entrada = 1;
+	public static int comecar = 2;
+	public static int jogando = 3;
+	public static int cutScene = entrada  ;
+	public int timeCena =0, maxtimeCena = 60*3;
+	public Npc npc;
 	
 	public Game() {
-		Sound.musicBackground.loop();
+		Sound.music.loop();
 		rand = new Random();
 		addKeyListener(this);
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		
+		//if(checkFullScreen) {
+		//setPreferredSize(new Dimension(Toolkit.getDefaultToolkit().getScreenSize()));
+		//}else {
 		setPreferredSize(new Dimension(WIDTH*SCALE,HEIGHT*SCALE));
+		//}
 		initFrame();
 		
 		// inicializando objetos
@@ -121,9 +137,13 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		player =  new Player(0, 0, 16, 16, spritesheet.getSprite(32, 0, 16, 16));	 
 		entities.add(player);
 		world = new World("/level1.png");	
+		npc = new Npc(32, 32, 16, 16, spritesheet.getSprite(96, 32, 16, 16));
+		entities.add(npc);
+		
 		minimap = new BufferedImage(World.WIDTH, World.HEIGHT ,BufferedImage.TYPE_INT_RGB);
 		minimapaPixels = ((DataBufferInt)minimap.getRaster().getDataBuffer()).getData();
 		menu = new Menu();
+		dimensionSelect= new DimensionSelect();
 		try {
 			newFont = Font.createFont(Font.TRUETYPE_FONT, stream).deriveFont(60f);
 		} catch (FontFormatException e) {
@@ -138,6 +158,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	public void initFrame() {
 		frame = new JFrame();
 		frame.add(this);
+		frame.setUndecorated(true);
 		frame.setResizable(false);
 		frame.pack();
 		//Icone da janela
@@ -190,12 +211,30 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 				Menu.saveGame(opt1, opt2, 10);				
 			}
 			this.restartGame = false;
+		if(Game.cutScene == Game.jogando) {	
 		for(int i=0 ; i< entities.size(); i++) {
 			Entity e = entities.get(i);
 			e.tick();
 		}
 		for(int i = 0; i < bullets.size(); i++) {
 			bullets.get(i).tick();
+		}
+		}else {
+			if(Game.cutScene == Game.entrada) {
+			
+				if(player.getX() < 200) {				
+					player.x++; 
+				}else{
+					Game.cutScene = Game.comecar;
+				}
+				
+			}else if(Game.cutScene == Game.comecar) {
+				timeCena++; 
+				if(timeCena == maxtimeCena) {
+					Game.cutScene = Game.jogando;
+				}
+			}
+			
 		}
 		if(enemies.size()==0 &&  (boss.size()==0||boss.isEmpty())  ) {
 			CUR_LEVEL++;
@@ -225,7 +264,11 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		}else if(gameState == "MENU") {
 			player.updateCamera();
 			menu.tick();
+		}else if(gameState == "DIMENSIONSELECT") {
+			player.updateCamera();
+			dimensionSelect.tick();
 		}
+		
 		
 	}
 	
@@ -245,7 +288,8 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		for(int xx=0; xx< Game.WIDTH;xx++) {
 			for(int yy=0; yy<Game.HEIGHT; yy++) {
 				if(lightMapPixels[xx+(yy*Game.WIDTH)] == 0xffffffff) {
-				pixels[xx+(yy*Game.WIDTH)] = 0;
+				int pixel = Pixel.getLightBlend(pixels[xx+yy*WIDTH], 0x00B764, 0); 
+				pixels[xx+(yy*Game.WIDTH)] = pixel;
 				}
 			}
 		}
@@ -275,12 +319,17 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			bullets.get(i).render(g);
 		}
 		
-		//applyLight();
+		applyLight();
 		ui.render(g);
 		g.dispose();
 		g = bs.getDrawGraphics();
 		//drawRectangleExample(xx, yy);
+
+//		g.drawImage(image, 0, 0, Toolkit.getDefaultToolkit().getScreenSize().width, 
+	//			Toolkit.getDefaultToolkit().getScreenSize().height, null);	
+
 		g.drawImage(image, 0, 0, WIDTH* SCALE, HEIGHT*SCALE, null);
+
 		g.setFont(new Font("arial", Font.BOLD,17));
 		g.setColor(Color.white);
 		g.drawString("Munição: "+ player.ammo,580, 20);
@@ -297,10 +346,16 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 				g.drawString("Pressione ENTER para reiniciar ! ",100, 330);
 		}else if(gameState == "MENU") {
 			menu.render(g);
+		}else if(gameState == "DIMENSIONSELECT") {
+			dimensionSelect.render(g);
 		}
 		World.renderMiniMap();
 		g.drawImage(minimap,615,80,World.WIDTH*5,World.HEIGHT*5,null);
-
+		
+		
+		if(Game.cutScene == Game.comecar) {
+			g.drawString("Ready ?", (WIDTH*SCALE)/2, (HEIGHT*SCALE)/2);
+		}
 		bs.show();
 	}
 	
@@ -336,6 +391,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	@Override
 	public void keyPressed(KeyEvent e) {
 		
+		
 		if(e.getKeyCode() == KeyEvent.VK_Z) {
 			player.jump = true;
 		}
@@ -358,6 +414,9 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			if(gameState == "MENU") {
 				menu.up = true;
 			}
+			if(gameState == "DIMENSIONSELECT") {
+				dimensionSelect.up = true;
+			}
 			
 		}else if(e.getKeyCode() == KeyEvent.VK_DOWN || 
 				e.getKeyCode() == KeyEvent.VK_S) {
@@ -366,6 +425,9 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			if(gameState == "MENU") {
 				menu.down = true;
 			}
+			if(gameState == "DIMENSIONSELECT") {
+				dimensionSelect.down= true;
+			}
 			
 		}
 		if(e.getKeyCode() == KeyEvent.VK_SPACE) {
@@ -373,10 +435,18 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		}
 		
 		if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+		
 			this.restartGame = true;
 			if(gameState == "MENU") {
 				menu.enter = true;
 			}
+			if(gameState == "DIMENSIONSELECT") {
+				dimensionSelect.enter = true;
+			}
+		}
+		if(e.getKeyCode()== KeyEvent.VK_X) {
+			npc.showMessage=false;
+			npc.show = false;
 		}
 		
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {

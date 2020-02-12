@@ -16,7 +16,7 @@ import com.zelda.world.World;
 
 public class Menu {
 	
-	public String[] options= {"Novo jogo", "Carregar Jogo", "Sair"};
+	public String[] options= {"Novo jogo", "Carregar Jogo", "Sair", "Dimensão"};
 	public int currentOption = 0;
 	public int maxOption =  options.length -1;
 	
@@ -64,6 +64,9 @@ public class Menu {
 				}
 			}else if(options[currentOption]== options[2]) {
 				System.exit(1);
+			}else if(options[currentOption]== options[3]) {
+				Game.gameState="DIMENSIONSELECT";
+				
 			}
 		}
 		
@@ -180,6 +183,10 @@ public class Menu {
 		}
 		if(options[currentOption] == options[2] ) {
 			j -= 90;
+			g.drawString(">",Game.WIDTH * Game.SCALE /2 - 180 , Game.HEIGHT * Game.SCALE / 2 - j);						
+		}
+		if(options[currentOption] == options[3] ) {
+			j -= 120;
 			g.drawString(">",Game.WIDTH * Game.SCALE /2 - 180 , Game.HEIGHT * Game.SCALE / 2 - j);						
 		}
 

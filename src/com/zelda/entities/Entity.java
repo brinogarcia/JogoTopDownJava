@@ -26,8 +26,8 @@ public class Entity {
 	public static BufferedImage SHOOTGUN_RIGHT = Game.spritesheet.getSprite(32, 48, 16, 16);
 	public static BufferedImage BOSS_EN = Game.spritesheet.getSprite(64, 48, 16, 16);
 	
-	protected double x;
-	protected double y;
+	public double x;
+	public double y;
 	protected int z;
 	protected int width;
 	protected int height;
