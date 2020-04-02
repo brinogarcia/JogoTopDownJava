@@ -53,7 +53,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	
 	public static Player player;
 
-	private int CUR_LEVEL = 1, MAX_LEVEL = 4;
+	private int CUR_LEVEL = 1, MAX_LEVEL = 8;
 	private BufferedImage image; 
 
 	public static List<Entity> entities;
@@ -101,7 +101,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 	public static int jogando = 3;
 	public static int cutScene = entrada  ;
 	public int timeCena =0, maxtimeCena = 60*3;
-	public Npc npc;
+	//public Npc npc;
 	
 	public Game() {
 		Sound.music.loop();
@@ -137,8 +137,8 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		player =  new Player(0, 0, 16, 16, spritesheet.getSprite(32, 0, 16, 16));	 
 		entities.add(player);
 		world = new World("/level1.png");	
-		npc = new Npc(32, 32, 16, 16, spritesheet.getSprite(96, 32, 16, 16));
-		entities.add(npc);
+		//npc = new Npc(32, 32, 16, 16, spritesheet.getSprite(96, 32, 16, 16));
+		//entities.add(npc);
 		
 		minimap = new BufferedImage(World.WIDTH, World.HEIGHT ,BufferedImage.TYPE_INT_RGB);
 		minimapaPixels = ((DataBufferInt)minimap.getRaster().getDataBuffer()).getData();
@@ -171,6 +171,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 		Toolkit toollkit = Toolkit.getDefaultToolkit();
 		Image image = toollkit.getImage(getClass().getResource("/cursor.png"));
 		Cursor c = toollkit.createCustomCursor(image, new Point(0,0), "img");
+		
 		frame.setCursor(c);
 		frame.setIconImage(image);
 		frame.setAlwaysOnTop(true);
@@ -236,7 +237,7 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			}
 			
 		}
-		if(enemies.size()==0 &&  (boss.size()==0||boss.isEmpty())  ) {
+		if(enemies.size()==0 &&  (boss.size()==0)  ) {
 			CUR_LEVEL++;
 			if(CUR_LEVEL > MAX_LEVEL) {
 				CUR_LEVEL = 1;
@@ -445,8 +446,8 @@ public class Game extends Canvas implements Runnable, KeyListener, MouseListener
 			}
 		}
 		if(e.getKeyCode()== KeyEvent.VK_X) {
-			npc.showMessage=false;
-			npc.show = false;
+			//npc.showMessage=false;
+			//npc.show = false;
 		}
 		
 		if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {

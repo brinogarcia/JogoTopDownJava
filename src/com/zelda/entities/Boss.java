@@ -20,7 +20,7 @@ public class Boss  extends Entity{
 
 	private BufferedImage[] sprites;
 
-	private int life = 70;
+	private int life = 60;
 
 	private boolean isDamaged = false;
 	private int damageFrames = 40, damageCurrent = 0;
@@ -88,7 +88,7 @@ public class Boss  extends Entity{
 	}
 
 	public void destroySelf() {
-		Game.enemies.remove(this);
+		Game.boss.remove(this);
 		Game.entities.remove(this);
 	}
 

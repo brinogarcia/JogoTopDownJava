@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 
 import com.zelda.main.Game;
 import com.zelda.world.Camera;
+import com.zelda.world.World;
 
 public class BulletShoot extends Entity {
 	
@@ -24,11 +25,18 @@ public class BulletShoot extends Entity {
 	}
 	
 	public void tick() {
+		if(World.isFreeDynamic((int)(x+(dx*spd)),(int) (y+(dy*spd)), 3,3,0)) {
 		x+=dx*spd;
 		y+=dy*spd;
+		}else {
+			Game.bullets.remove(this);
+			World.genereteParticles(100	, (int)x,(int) y);
+			return;
+		}
 		curLife++;
 		if(curLife == life) {
 			Game.bullets.remove(this);
+			World.genereteParticles(100	, (int)x,(int) y);
 			return;
 		}
 	}

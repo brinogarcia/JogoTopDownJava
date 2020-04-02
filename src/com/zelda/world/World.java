@@ -12,6 +12,7 @@ import com.zelda.entities.Bullet;
 import com.zelda.entities.Enemy;
 import com.zelda.entities.Entity;
 import com.zelda.entities.LifePack;
+import com.zelda.entities.Particles;
 import com.zelda.entities.Player;
 import com.zelda.entities.ShootGun;
 import com.zelda.entities.Weapon;
@@ -89,7 +90,38 @@ public class World {
 			e.printStackTrace();
 		}
 	}
+	
+	public static void genereteParticles(int amount, int x, int y) {
+		for(int i=0; i< amount; i++) {
+			Game.entities.add(new Particles(x, y, 1, 1, null));
+		}
+	}
 
+	public static boolean isFreeDynamic(int xnext, int ynext, int width, int height, int zplayer) {
+		int x1 = xnext / TILE_SIZE;
+		int y1 = ynext / TILE_SIZE;
+
+		int x2 = (xnext + width - 1) / TILE_SIZE;
+		int y2 = ynext / TILE_SIZE;
+
+		int x3 = xnext / TILE_SIZE;
+		int y3 = (ynext + height - 1) / TILE_SIZE;
+
+		int x4 = (xnext + width - 1) / TILE_SIZE;
+		int y4 = (ynext + height - 1) / TILE_SIZE;
+
+		if (!((tiles[x1 + (y1 * World.WIDTH)] instanceof WallTile || tiles[x2 + (y2 * World.WIDTH)] instanceof WallTile
+				|| tiles[x3 + (y3 * World.WIDTH)] instanceof WallTile
+				|| tiles[x4 + (y4 * World.WIDTH)] instanceof WallTile))) {
+			return true;
+		}
+		if (zplayer > 0) {
+			return true;
+		}
+		return false;
+	}
+	
+	
 	public static boolean isFree(int xnext, int ynext, int zplayer) {
 		int x1 = xnext / TILE_SIZE;
 		int y1 = ynext / TILE_SIZE;

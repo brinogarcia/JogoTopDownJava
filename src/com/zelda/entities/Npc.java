@@ -13,6 +13,17 @@ public class Npc extends Entity {
 	public String[] frases = new String[5];
 	public boolean show = false;
 	
+	public int curIndexMsg = 0;
+	
+	public int fraseIndex = 0;
+	
+	public int time = 0;
+	
+	public int maxTime = 4;
+	
+	
+	
+	
 	public Npc(int x, int y, int width, int height, BufferedImage sprite) {
 		super(x, y, width, height, sprite);
 		frases[0] = "Olá você está em um mundo sombrio, seja bem vindo!";
@@ -33,6 +44,21 @@ public class Npc extends Entity {
 		}else {
 			showMessage = false;
 		}
+		this.time++;
+		if(showMessage) {			
+			if(this.time >= this.maxTime) {
+				this.time = 0 ;
+				if(curIndexMsg < frases[fraseIndex].length()-1) {
+					curIndexMsg++;
+				}else {
+					if(fraseIndex >= frases.length -1) {
+						fraseIndex++;
+						curIndexMsg = 0;
+						
+					}
+				}
+			}
+		}
 	}
 	
 	public void render(Graphics g) {
@@ -45,7 +71,7 @@ public class Npc extends Entity {
 			
 			g.setFont(new Font("Arial",Font.CENTER_BASELINE,9));
 			g.setColor(Color.black);
-			g.drawString(frases[0],(int) x,(int) y);
+			g.drawString(frases[fraseIndex].substring(0,curIndexMsg),(int) x,(int) y);
 			
 			g.drawString("Pessione X para fechar ou abrir a mensagem!",(int) x,(int) y+10);
 		}
